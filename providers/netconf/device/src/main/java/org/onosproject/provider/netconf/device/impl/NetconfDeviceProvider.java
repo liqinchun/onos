@@ -199,16 +199,27 @@ public class NetconfDeviceProvider extends AbstractProvider
 
     @Activate
     public void activate(ComponentContext context) {
+
         active = true;
+
         componentConfigService.registerProperties(getClass());
+
         providerService = providerRegistry.register(this);
+
         coreService.registerApplication(APP_NAME);
+
         cfgService.registerConfigFactory(factory);
+
         cfgService.addListener(cfgListener);
+
         controller.addDeviceListener(innerNodeListener);
+
         deviceService.addListener(deviceListener);
+
         pollingExecutor.execute(NetconfDeviceProvider.this::connectDevices);
+
         scheduledTask = schedulePolling();
+
         modified(context);
         log.info("Started");
     }
@@ -390,6 +401,7 @@ public class NetconfDeviceProvider extends AbstractProvider
     }
 
     private ScheduledFuture schedulePolling() {
+
         return pollingExecutor.scheduleAtFixedRate(exceptionSafe(this::checkAndUpdateDevices),
                 pollFrequency / 10,
                 pollFrequency, TimeUnit.SECONDS);
@@ -416,6 +428,7 @@ public class NetconfDeviceProvider extends AbstractProvider
     //updating keys and device info
     private void checkAndUpdateDevices() {
         Set<DeviceId> deviceSubjects = cfgService.getSubjects(DeviceId.class, NetconfDeviceConfig.class);
+        log.info("exec checkAndUpdateDevices,param:{}",deviceSubjects.toArray());
         try {
             scheduledTaskPool.submit(() -> {
                 deviceSubjects.parallelStream().forEach(deviceId -> {
